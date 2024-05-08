@@ -1,97 +1,95 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Tinder Auto Swiper Settings</title>
-		<style>
-			body {
-				font-family: 'Arial', sans-serif;
-				margin: 20px;
-				background-color: #f9f9f9;
-				color: #333;
-			}
-			.header {
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				align-items: center;
-			}
-			h1 {
-				margin-left: 16px;
-				font-size: 24px;
-				color: #5c67f2;
-			}
-			.form-group {
-				margin-bottom: 10px;
-			}
-			label {
-				font-weight: bold;
-				margin-bottom: 5px;
-				display: inline-block;
-			}
-			input[type='number'] {
-				width: 100%;
-				padding: 8px;
-				border: 1px solid #ccc;
-				border-radius: 4px;
-				box-sizing: border-box;
-				margin-top: 4px;
-			}
-			button {
-				width: 100%;
-				padding: 10px;
-				border: none;
-				border-radius: 4px;
-				background-color: #5c67f2;
-				color: white;
-				cursor: pointer;
-				margin-top: 10px;
-			}
-			button:hover {
-				background-color: #4a54e1;
-			}
-			button:active {
-				background-color: #3e45cf;
-			}
-			#timer,
-			#speedError {
-				font-size: 12px;
-				color: #d35400;
-				text-align: center;
-				margin-top: 20px;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="header">
-			<img
-				width="24px"
-				height="24px"
-				src="icon.png"
-				alt="Settings Icon"
-			/>
-			<h1>Settings</h1>
-		</div>
-		<div class="form-group">
-			<label for="speed">Swipe Speed (ms):</label>
-			<input
-				type="number"
-				id="speed"
-				min="750"
-			/>
-		</div>
-		<div class="form-group">
-			<label for="hours">Countdown Timer (hours):</label>
-			<input
-				type="number"
-				id="hours"
-				min="1"
-				value="1"
-			/>
-		</div>
-		<button id="start">Start Swiping</button>
-		<button id="stop">Stop</button>
-		<div id="timer"></div>
-		<div id="speedError"></div>
-		<script src="popup.js"></script>
-	</body>
+
+<head>
+	<title>Tinder Auto Swiper Settings</title>
+	<style>
+		body {
+			font-family: 'Arial', sans-serif;
+			margin: 20px;
+			background-color: #f9f9f9;
+			color: #333;
+		}
+
+		.header {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+		}
+
+		h1 {
+			margin-left: 16px;
+			font-size: 24px;
+			color: #5c67f2;
+		}
+
+		.form-group {
+			margin-bottom: 10px;
+		}
+
+		label {
+			font-weight: bold;
+			margin-bottom: 5px;
+			display: inline-block;
+		}
+
+		input[type='number'] {
+			width: 100%;
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			box-sizing: border-box;
+			margin-top: 4px;
+		}
+
+		button {
+			width: 100%;
+			padding: 10px;
+			border: none;
+			border-radius: 4px;
+			background-color: #5c67f2;
+			color: white;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		button:hover {
+			background-color: #4a54e1;
+		}
+
+		button:active {
+			background-color: #3e45cf;
+		}
+
+		#timer,
+		#speedError {
+			font-size: 12px;
+			color: #d35400;
+			text-align: center;
+			margin-top: 20px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="header">
+		<img width="24px" height="24px" src="icon.png" alt="Settings Icon" />
+		<h1>Settings</h1>
+	</div>
+	<div class="form-group">
+		<label for="speed">Swipe Speed (seconds):</label>
+		<input type="number" id="speed" min="1" />
+	</div>
+	<div class="form-group">
+		<label for="hours">Countdown Timer (hours):</label>
+		<input type="number" id="hours" min="1" />
+	</div>
+	<button id="start">Start Swiping</button>
+	<button id="stop">Stop</button>
+	<div id="timer"></div>
+	<div id="speedError"></div>
+	<script src="popup.js"></script>
+</body>
+
 </html>
