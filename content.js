@@ -47,12 +47,14 @@ function performSwipeLogic() {
 						a.textContent.includes('Russian') || a.textContent.includes('Ukrainian')
 				}
 			})
-
+		console.log('Name Info:', nameInfo)
 		if (!shouldSwipeRight && nameInfo) {
 			const cyrillicPattern = /[\u0400-\u04FF]/
+			console.log('Cyrillic Pattern:', cyrillicPattern.test(nameInfo.textContent))
 			if (cyrillicPattern.test(nameInfo.textContent)) {
 				shouldSwipeRight = true
 			}
+			console.log('Swipe Right:', shouldSwipeRight)
 		}
 
 		if (shouldSwipeRight) {
