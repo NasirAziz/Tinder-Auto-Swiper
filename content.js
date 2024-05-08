@@ -6,7 +6,7 @@ let timeToNextSwipe;
 function simulateHumanBehavior() {
 	return new Promise((resolve, reject) => {
 		const randomSpacePresses = Math.floor(Math.random() * 3) + 1; // Generates 1, 2, or 3 space presses
-		console.log('randomSpacePresses', randomSpacePresses);
+		// console.log('randomSpacePresses', randomSpacePresses);
 
 		for (let i = 0; i < randomSpacePresses; i++) {
 			let timeout = i == 0 ? 1000 : i * 1000;
@@ -15,7 +15,7 @@ function simulateHumanBehavior() {
 				document.dispatchEvent(new KeyboardEvent('keyup', { keyCode: 32, which: 32, code: 'Space' }));
 
 				// Check if the current iteration is the last one
-				console.log('setTimeout', i, timeout);
+				// console.log('setTimeout', i, timeout);
 				if (i === randomSpacePresses - 1) {
 					resolve();
 				}
@@ -26,25 +26,24 @@ function simulateHumanBehavior() {
 
 async function checkProfileAndSwipe() {
 	const isSearchingForProfiles =
-		document.getElementsByClassName(
-			'beacon__circle Pos(a) Bd Bdrs(50%) T(10px) Start(10px) Sq(80px) Animdur(4s) Animic(i) Animtf(l) Bdc($c-beacon-gray) Bgc($c-beacon-gray)'
-		).length != 0;
-
-	{
-		isSearchingForProfiles ? console.log('Searching for profiles!') : null;
-	}
-
+		document.getElementsByClassName('Pos(a) B(100px) Ta(c) Px(28px) Fz($s) C($c-ds-text-secondary)').length !=
+		0;
+	console.log(isSearchingForProfiles ? 'Searching for profiles!' : 'Checking Profile!');
 	if (shouldContinueSwiping && !isSearchingForProfiles) {
-		console.log('Before simulateHumanBehavior');
+		// console.log('Before simulateHumanBehavior');
 		await simulateHumanBehavior();
-		console.log('After simulateHumanBehavior');
+		// console.log('After simulateHumanBehavior');
 
-		console.log('timeToNextSwipe', timeToNextSwipe);
+		// console.log('timeToNextSwipe', timeToNextSwipe);
 		const viewProfileButton = document.getElementsByClassName(
 			'P(0) Trsdu($normal) Sq(28px) Bdrs(50%) Cur(p) Ta(c) Scale(1.2):h CenterAlign M(a) focus-button-style'
 		)[0];
+		// const sliptedTimeToNextSwipe = timeToNextSwipe / 2;
+		// console.log('sliptedTimeToNextSwipe', sliptedTimeToNextSwipe);
 
-		if (viewProfileButton) viewProfileButton.click();
+		setTimeout(() => {
+			if (viewProfileButton) viewProfileButton.click();
+		}, 1200);
 
 		setTimeout(() => {
 			// Perform the swipe logic here
@@ -114,8 +113,10 @@ async function startAutoSwiping() {
 		let speedInSeconds = result.speed || 5; // Default to 5s if not set // Base swipe speed in seconds
 		// Randomize the time before next swipe
 		timeToNextSwipe = (parseInt(speedInSeconds) + (Math.floor(Math.random() * 3) - 1)) * 1000;
-		console.log('timeToNextSwipe', timeToNextSwipe);
-		intervalId = setInterval(checkProfileAndSwipe, timeToNextSwipe + 4200); // user given random time plus time to swip images then send in another request
+		// console.log('timeToNextSwipe', timeToNextSwipe);
+
+		// user given random time plus time to swip images and profile click wait then send in another request
+		intervalId = setInterval(checkProfileAndSwipe, timeToNextSwipe + 5000);
 	}
 }
 
@@ -140,9 +141,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	}
 	if (message.command === 'stop') {
 		shouldContinueSwiping = false;
-		intervalId = undefined;
 		clearInterval(intervalId);
 		clearInterval(pauseIntervalId);
+		intervalId = undefined;
 	}
 });
 
