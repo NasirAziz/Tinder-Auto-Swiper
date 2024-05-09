@@ -1,6 +1,12 @@
-chrome.storage.local.get(['speed', 'hours'], function (result) {
+chrome.storage.local.get(['speed', 'hours', 'timer', 'endTime'], function (result) {
 	const speed = result.speed || 1 // Default to 1 s if not set
 	const hours = result.hours || 1 // Default to 1 hour if not set
+	const endTime = result.endTime
+	if (endTime) {
+		chrome.runtime.sendMessage({ command: 'startTimer', endTime })
+	}
+
+	// console.log('endTime', endTime)
 	document.getElementById('speed').setAttribute('value', speed)
 	document.getElementById('hours').setAttribute('value', hours)
 })
@@ -16,54 +22,29 @@ document.getElementById('start').addEventListener('click', () => {
 	}
 	let hours = document.getElementById('hours').value
 	if (parseInt(hours) < 1) {
-		hours = 1
-		document.getElementById('hours').setAttribute('value', hours)
+		document.getElementById('speedError').textContent = 'Minimun Recommended Hour(s) is 1'
+		return
+		// hours = 1
+		// document.getElementById('hours').setAttribute('value', hours)
 	}
 	////////
 
 	chrome.storage.local.set({ speed, hours }, () => {
 		chrome.alarms.create({ delayInMinutes: parseInt(hours) * 60 })
-		chrome.runtime.sendMessage({ command: 'start' })
-		startCountdown(parseInt(hours))
+		chrome.runtime.sendMessage({ command: 'start', hours })
 	})
 })
 
 document.getElementById('stop').addEventListener('click', () => {
+	chrome.runtime.sendMessage({ command: 'stopTimer' })
 	chrome.tabs.query({ url: '*://*.tinder.com/*' }, (tabs) => {
 		for (let tab of tabs) {
 			chrome.tabs.sendMessage(tab.id, { command: 'stop' })
 		}
-		stopCountdown()
 	})
 })
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
-	debugger
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (message.command === 'updateTimer')
+		document.getElementById('timer').textContent = message.timerValue
 })
-
-let countdownInterval
-
-function startCountdown(hours) {
-	let endTime = Date.now() + hours * 3600000
-	countdownInterval = setInterval(function () {
-		let msLeft = endTime - Date.now()
-		if (msLeft <= 0) {
-			clearInterval(countdownInterval)
-			document.getElementById('timer').textContent = 'Time is up!'
-			return
-		}
-		let hours = Math.floor(msLeft / 3600000)
-		msLeft %= 3600000
-		let minutes = Math.floor(msLeft / 60000)
-		msLeft %= 60000
-		let seconds = Math.floor(msLeft / 1000)
-		document.getElementById(
-			'timer'
-		).textContent = `${hours} hours, ${minutes} minutes, ${seconds} seconds remaining`
-	}, 1000)
-}
-
-function stopCountdown() {
-	clearInterval(countdownInterval)
-	document.getElementById('timer').textContent = 'Countdown stopped.'
-}
