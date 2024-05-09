@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		})
 		startCountdown(parseInt(message.hours))
 	} else if (message.command === 'startTimer') {
-		startCountdown(null, parseInt(message.endTime))
+		// startCountdown(null, parseInt(message.endTime))
 	} else if (message.command === 'stopTimer') {
 		stopCountdown('Countdown stopped.')
 	}
@@ -50,14 +50,14 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 let countdownInterval
 
 function startCountdown(hours = 1, endTime = null) {
-	if (!endTime) endTime = Date.now() + hours //* 3600000
+	if (!endTime) endTime = Date.now() + hours * 3600000
 
 	chrome.storage.local.set({
 		endTime,
 	})
 
 	countdownInterval = setInterval(function () {
-		let msLeft = endTime - Date.now() * 3600000
+		let msLeft = endTime - Date.now()
 		if (msLeft <= 0) {
 			clearInterval(countdownInterval)
 			// document.getElementById('timer').textContent = 'Time is up!'
