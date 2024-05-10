@@ -2,12 +2,17 @@ let shouldContinueSwiping = true;
 let intervalId;
 let pauseIntervalId;
 let timeToNextSwipe;
+let speedInSeconds = 5;
+let intervalsList = [];
+let pauseIntervalsList = [];
 
 function simulateHumanBehavior() {
 	return new Promise((resolve, reject) => {
-		const randomSpacePresses = Math.floor(Math.random() * 3) + 1; // Generates 1, 2, or 3 space presses
-		// console.log('randomSpacePresses', randomSpacePresses);
+		let randomSpacePresses = Math.floor(Math.random() * 3);
+		if (randomSpacePresses == 0) randomSpacePresses += 2;
+		else randomSpacePresses += 1; // Generates 2, or 3 space presses
 
+		// console.log('randomSpacePresses', randomSpacePresses);
 		for (let i = 0; i < randomSpacePresses; i++) {
 			let timeout = i == 0 ? 1000 : i * 1000;
 			setTimeout(() => {
@@ -15,35 +20,30 @@ function simulateHumanBehavior() {
 				document.dispatchEvent(new KeyboardEvent('keyup', { keyCode: 32, which: 32, code: 'Space' }));
 
 				// Check if the current iteration is the last one
-				// console.log('setTimeout', i, timeout);
 				if (i === randomSpacePresses - 1) {
-					resolve();
+					if (randomSpacePresses == 2) setTimeout(() => resolve(), 2000); // for consistant 4s timeout
+					else resolve();
 				}
-			}, timeout); // Space out the key presses by 1600 ms each
+			}, timeout); // Space out the key presses
 		}
 	});
 }
 
 async function checkProfileAndSwipe() {
 	const isSearchingForProfiles =
-		document.getElementsByClassName('Pos(a) B(100px) Ta(c) Px(28px) Fz($s) C($c-ds-text-secondary)').length !=
-		0;
+		document.getElementsByClassName(
+			'Pos(r) Bdrs(50%) Sq(100px) Bdw(3px) Bds(s) Bdc($c-ds-border-overlay) Bgi($g-ds-background-brand-gradient)'
+		).length != 0;
 	console.log(isSearchingForProfiles ? 'Searching for profiles!' : 'Checking Profile!');
+	// console.log(new Date(), intervalId);
 	if (shouldContinueSwiping && !isSearchingForProfiles) {
-		// console.log('Before simulateHumanBehavior');
 		await simulateHumanBehavior();
-		// console.log('After simulateHumanBehavior');
 
-		// console.log('timeToNextSwipe', timeToNextSwipe);
 		const viewProfileButton = document.getElementsByClassName(
 			'P(0) Trsdu($normal) Sq(28px) Bdrs(50%) Cur(p) Ta(c) Scale(1.2):h CenterAlign M(a) focus-button-style'
 		)[0];
-		// const sliptedTimeToNextSwipe = timeToNextSwipe / 2;
-		// console.log('sliptedTimeToNextSwipe', sliptedTimeToNextSwipe);
 
-		setTimeout(() => {
-			if (viewProfileButton) viewProfileButton.click();
-		}, 1200);
+		if (viewProfileButton) viewProfileButton.click();
 
 		setTimeout(() => {
 			// Perform the swipe logic here
@@ -109,19 +109,39 @@ function swipeLeft() {
 async function startAutoSwiping() {
 	if (shouldContinueSwiping) {
 		checkProfileAndSwipe();
-		let result = await chrome.storage.local.get(['speed']);
-		let speedInSeconds = result.speed || 5; // Default to 5s if not set // Base swipe speed in seconds
+
 		// Randomize the time before next swipe
 		timeToNextSwipe = (parseInt(speedInSeconds) + (Math.floor(Math.random() * 3) - 1)) * 1000;
 		// console.log('timeToNextSwipe', timeToNextSwipe);
 
+		// clear old interval
+		clearInterval(intervalId);
+		let index = intervalsList.indexOf(intervalId);
+		intervalsList = intervalsList.splice(index, 1);
+
 		// user given random time plus time to swip images and profile click wait then send in another request
-		intervalId = setInterval(checkProfileAndSwipe, timeToNextSwipe + 5000);
+		intervalId = setInterval(checkProfileAndSwipe, timeToNextSwipe + 4005);
+		intervalsList.push(intervalId);
 	}
 }
 
+function clearAllSwipingIntervals() {
+	intervalsList.forEach((id) => {
+		clearInterval(id);
+	});
+	intervalsList = [];
+}
+
+function clearAllPauseIntervals() {
+	pauseIntervalsList.forEach((id) => {
+		clearInterval(id);
+	});
+	pauseIntervalsList = [];
+}
+
 function pauseSwiping() {
-	clearInterval(intervalId);
+	clearAllSwipingIntervals();
+
 	setTimeout(() => {
 		if (shouldContinueSwiping) {
 			startAutoSwiping(); // Resume swiping after pause
@@ -129,20 +149,26 @@ function pauseSwiping() {
 	}, 15 * 60 * 1000); // Pause for 15 minutes
 }
 
-function handleRegularBreaks() {
+async function handleRegularBreaks() {
+	let result = await chrome.storage.local.get(['speed']);
+	speedInSeconds = result.speed || 5; // Default to 5s if not set // Base swipe speed in seconds
 	pauseIntervalId = setInterval(pauseSwiping, 60 * 60 * 1000); // Pause every hour
+	pauseIntervalsList.push(pauseIntervalId);
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.command === 'start') {
 		shouldContinueSwiping = true;
+		clearAllSwipingIntervals();
+		clearAllPauseIntervals();
 		startAutoSwiping();
 		handleRegularBreaks();
 	}
 	if (message.command === 'stop') {
+		console.log('Auto Swiper Stopped!');
 		shouldContinueSwiping = false;
-		clearInterval(intervalId);
-		clearInterval(pauseIntervalId);
+		clearAllSwipingIntervals();
+		clearAllPauseIntervals();
 		intervalId = undefined;
 	}
 });
