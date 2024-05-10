@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 						chrome.tabs.sendMessage(tab.id, { command: 'start' }, function (res) {
 							if (
 								chrome.runtime.lastError &&
-								chrome.runtime.lastError.includes('Receiving end does not exist')
+								chrome.runtime.lastError.message.includes('Receiving end does not exist')
 							) {
 								insertContentJsScript();
 							}
